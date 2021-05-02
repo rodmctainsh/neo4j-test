@@ -26,7 +26,7 @@ class ChoiceTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_the_items_others_have_also_chosen()
+    public function it_returns_the_items_others_have_also_requested_for_a_given_choice()
     {
         $this->db->run("CREATE (:Item {name: 'Bucket'})-[:REQUESTED_WITH]->(:Item {name: 'Other Bucket'})");
         $this->db->run("
@@ -40,7 +40,7 @@ class ChoiceTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_the_items_that_are_used_with_the_chosen_one()
+    public function it_returns_the_items_that_are_used_with_the_chosen_item()
     {
         $this->db->run("CREATE (:Item {name: 'Bucket'})-[:USED_WITH]->(:Item {name: 'Spade'})");
         $this->db->run("
