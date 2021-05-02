@@ -2,38 +2,37 @@
 
 namespace App;
 
-use Laudis\Neo4j\Client;
+use App\GraphDB;
 
 class Choice
 {
     private $name;
 
-    private Client $client;
+    private GraphDB $db;
 
-    public function __construct($name, Client $client)
+    public function __construct($name, GraphDB $db)
     {
         $this->name = $name;
-        $this->client = $client;
+        $this->db = $db;
     }
 
-    public function alsoChosen()
+    public function requestedWith()
     {
-        return $alsoChosen = $this->client->run(
+        return $this->db->run(
             'MATCH (:Item {name: $name})-[:REQUESTED_WITH]-(i:Item) RETURN i',
             ['name' => $this->name]
         )
-            ->map(fn ($item) => $item->get('i')['name'])
+            ->map(fn ($item) => $item['i']['name'])
             ->toArray();
     }
 
-    public function alsoUsed()
+    public function usedWith()
     {
-        return $this->client->run(
+        return $this->db->run(
             'MATCH (:Item {name: $name})-[:USED_WITH]-(i:Item) RETURN i',
             ['name' => $this->name]
         )
-            ->map(fn ($item) => $item->get('i')['name'])
-            ->filter(fn ($itemName) => array_search($itemName, $this->alsoChosen()) === false)
+            ->map(fn ($item) => $item['i']['name'])
             ->toArray();
     }
 }

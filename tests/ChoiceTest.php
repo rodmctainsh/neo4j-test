@@ -3,36 +3,53 @@
 namespace Tests;
 
 use App\Choice;
-use Laudis\Neo4j\Client;
-use Laudis\Neo4j\ClientBuilder;
+use App\GraphDB;
 use PHPUnit\Framework\TestCase;
 
 class ChoiceTest extends TestCase
 {
-    private Client $client;
+    private GraphDB $db;
 
     protected function setUp(): void
     {
-        $this->client = ClientBuilder::create()
-            ->addHttpConnection('backup', 'http://neo4j:neo4j@localhost:7687')
-            ->addBoltConnection('default', 'bolt://neo4j:neo4j@localhost:7687')
-            ->setDefaultConnection('default')
-            ->build();        
+        parent::setUp();
+
+        $this->db = (new GraphDB('neo4j:neo4j@localhost:7687'))
+            ->transaction();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->db->rollback();
+
+        parent::setUp();
     }
 
     /** @test */
     public function it_returns_the_items_others_have_also_chosen()
     {
-        $choice = new Choice('Bucket', $this->client);
+        $this->db->run("CREATE (:Item {name: 'Bucket'})-[:REQUESTED_WITH]->(:Item {name: 'Other Bucket'})");
+        $this->db->run("
+            MATCH (bucket:Item {name: 'Bucket'})
+            CREATE (bucket)-[:REQUESTED_WITH]->(:Item {name: 'Spade'})
+        ");
 
-        $this->assertEquals(['Other Bucket'], $choice->alsoChosen());
+        $choice = new Choice('Bucket', $this->db);
+
+        $this->assertEquals(['Other Bucket', 'Spade'], $choice->requestedWith());
     }
 
     /** @test */
     public function it_returns_the_items_that_are_used_with_the_chosen_one()
     {
-        $choice = new Choice('Bucket', $this->client);
+        $this->db->run("CREATE (:Item {name: 'Bucket'})-[:USED_WITH]->(:Item {name: 'Spade'})");
+        $this->db->run("
+            MATCH (bucket:Item {name: 'Bucket'})
+            CREATE (bucket)-[:USED_WITH]->(:Item {name: 'Gloves'})
+        ");
 
-        $this->assertEquals(['Spade'], $choice->alsoUsed());
+        $choice = new Choice('Bucket', $this->db);
+
+        $this->assertEquals(['Spade', 'Gloves'], $choice->usedWith());
     }
 }
