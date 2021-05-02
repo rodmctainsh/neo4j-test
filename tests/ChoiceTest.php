@@ -50,6 +50,6 @@ class ChoiceTest extends TestCase
 
         $bucket = new Choice('Bucket', $this->db);
 
-        $this->assertEquals(['Spade', 'Gloves'], $bucket->usedWith());
+        $this->assertEquals(['Gloves', 'Spade'], $bucket->usedWith());
     }
 }

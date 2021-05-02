@@ -23,7 +23,9 @@ class Choice
             ['name' => $this->name]
         )
             ->map(fn ($item) => $item['i']['name'])
-            ->toArray();
+            ->sort()
+            ->values()
+            ->all();
     }
 
     public function usedWith()
@@ -33,6 +35,8 @@ class Choice
             ['name' => $this->name]
         )
             ->map(fn ($item) => $item['i']['name'])
-            ->toArray();
+            ->sort()
+            ->values()
+            ->all();
     }
 }
