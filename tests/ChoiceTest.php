@@ -34,9 +34,9 @@ class ChoiceTest extends TestCase
             CREATE (bucket)-[:REQUESTED_WITH]->(:Item {name: 'Spade'})
         ");
 
-        $choice = new Choice('Bucket', $this->db);
+        $bucket = new Choice('Bucket', $this->db);
 
-        $this->assertEquals(['Other Bucket', 'Spade'], $choice->requestedWith());
+        $this->assertEquals(['Other Bucket', 'Spade'], $bucket->requestedWith());
     }
 
     /** @test */
@@ -48,8 +48,8 @@ class ChoiceTest extends TestCase
             CREATE (bucket)-[:USED_WITH]->(:Item {name: 'Gloves'})
         ");
 
-        $choice = new Choice('Bucket', $this->db);
+        $bucket = new Choice('Bucket', $this->db);
 
-        $this->assertEquals(['Spade', 'Gloves'], $choice->usedWith());
+        $this->assertEquals(['Spade', 'Gloves'], $bucket->usedWith());
     }
 }
